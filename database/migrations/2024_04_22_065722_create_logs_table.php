@@ -14,9 +14,14 @@ return new class extends Migration
         Schema::create('logs', function (Blueprint $table) {
             $table->increments('id');
             $table->string('batsman');
+            $table->boolean('isout')->default(false);
             $table->string('hisruns');
             $table->string('bowler');
             $table->string('onthisbowl');
+            $table->integer('count');
+            $table->integer('current_runs');
+            $table->integer('current_wickets');
+            $table->integer('current_over')->default(1);
             $table->timestamps();
         });
     }
