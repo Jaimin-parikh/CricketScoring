@@ -21,7 +21,7 @@ class ViewrController extends Controller
                     // dd($current_over);
                     break;
                 default:
-                    $current_over = ($latestlog->current_over-1).".".$latestlog->count";
+                    $current_over = ($latestlog->current_over-1).".".$latestlog->count;
             }
             return response()->json([
                 "message" => [
@@ -43,4 +43,4 @@ class ViewrController extends Controller
         ], 200);
     }
 }
-"Jaxx was here";
+
