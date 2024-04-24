@@ -17,11 +17,11 @@ class ViewrController extends Controller
 
             switch ($latestlog->count) {
                 case 6:
-                    $current_over = ++$latestlog->current_over;
+                    $current_over = $latestlog->current_over;
                     // dd($current_over);
                     break;
                 default:
-                    $current_over = "$latestlog->current_over . $latestlog->count";
+                    $current_over = ($latestlog->current_over-1).".".$latestlog->count";
             }
             return response()->json([
                 "message" => [
