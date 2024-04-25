@@ -121,8 +121,6 @@ class ScorerController extends Controller
             }
 
 
-
-
             switch ($request->ball) {
                 case 1:
                     $run = 1;
@@ -152,38 +150,47 @@ class ScorerController extends Controller
 
             //logic when a wicket is taken....
             if ($request->ball == 'wicket') {
+                // dd($current_batsman);
                 $hisruns = Log::where('batsman', $current_batsman)->pluck('hisruns')->toArray();
                 $total_runs = array_sum($hisruns);
 
                 // Calculate How many ball does he played!!
                 $total_balls = Log::where('batsman', $current_batsman)->count();
-
                 $iswicket = true;
                 $current_wickets++;
-                Batsman::where('name', $current_batsman)->update(['runs' => $total_runs, 'balls' => $total_balls]); //Log that particular batsman's info in batsmen table
-                $current_batsman = $this->select_batsman();
+                Batsman::where('name', $current_batsman)
+                    ->update(['runs' => $total_runs, 'balls' => $total_balls]); //Log that particular batsman's info in batsmen table
             } else {
                 $iswicket = false;
             }
             // Create a new log entry
-            Log::create([
-                'batsman' => $current_batsman, //Who is hitting
-                'isout' => $iswicket,
-                'hisruns' => $request->input('batsman_run'),
-                'bowler' => $current_bowler,
-                'onthisbowl' => $request->input('ball'),
-                'current_runs' => $run + $current_runs,
-                'current_wickets' => $current_wickets,
-                'current_over' => $current_over,
-                'count' =>  $latestCount
-            ]);
-
+            if ($current_over <= 5) {
+                Log::create([
+                    'batsman' => $current_batsman, //Who is hitting
+                    'isout' => $iswicket,
+                    'hisruns' => $request->input('batsman_run'),
+                    'bowler' => $current_bowler,
+                    'onthisbowl' => $request->input('ball'),
+                    'current_runs' => $run + $current_runs,
+                    'current_wickets' => $current_wickets,
+                    'current_over' => $current_over,
+                    'count' =>  $latestCount
+                ]);
+                if ($iswicket) {
+                    $current_batsman = $this->select_batsman();
+                }
+                return response()->json([
+                    'message' => 'Runs added successfully.'
+                ], 200);
+            } else {
+                dd($this->num);
+                return response()->json([
+                    "message" => "The overs has completed please hit start inning api!!"
+                ], 200);
+            }
 
             // Optionally, update the batsman and bowler based on the outcome of the ball (e.g., if the batsman gets out)
 
-            return response()->json([
-                'message' => 'Runs added successfully.'
-            ], 200);
         } else {
             return $this->start_inning($this->num);
         }
@@ -206,8 +213,7 @@ class ScorerController extends Controller
         if ($latestlog) {
             $latestlog->delete();
             return response()->json(["message" => "deleted successfully"], 200);
-        }
-        else{
+        } else {
             return response()->json(["message" => "Nothing to delete"], 200);
         }
     }
